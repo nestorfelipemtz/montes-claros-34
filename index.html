@@ -48,6 +48,7 @@
 
     const lineasSource = new carto.source.Dataset('rutas_montesclaros');
     const lineasStyle = new carto.style.CartoCSS(`
+
       #layer[gruppe = 'Audioguía'] {
         line-width: 7;
         line-color: red;
@@ -65,11 +66,10 @@
         line-color: cyan; 
         line-opacity: 0.5;
       }
-      }
     `);
 
     const lineaslayer = new carto.layer.Layer(lineasSource, lineasStyle, {
-      featureOverColumns: ['name', 'info']
+      featureOverColumns: ['name', 'info', 'gruppe']
     });
 
     client.addLayers([puntoslayer, lineaslayer]);
