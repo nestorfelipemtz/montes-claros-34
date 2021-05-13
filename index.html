@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>  
+      <title>'Mapaweb Montes Claros 34'</title>
+      <!-- 1. verweis auf extern Leaflet CSS -->
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+      <link rel="stylesheet" type="text/css" href="style.css">
+    <meta http-equiv="Conent-Type" content="text/html"; charset="utf-8"/>
+  </head>
+  <body>
+    <div id="controls">
+      <input type="button" onclick="goToDemo1()" value="Lichtenberg">
+      <input type="button" onclick="goToDemo2()" value="Grunewald">
+      <input type="button" onclick="goToDemo3()" value="Neukölln">
+      <input type="button" onclick="goTo()" value="XD">
+      </div>
+  <div id="map"></div>
+    <!-- 2. Leaflet Javascript library hinzufügen-->
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <!-- 2.1. Leaflet.TextPath library hinzufügen für personalisierte Beschriftungen-->
+    <script src="Leaflet.TextPath-master/leaflet.textpath.js"></script>
+    <!-- 3. JQuery hinzufügen-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+     <!-- Include CARTO.js -->
+    <script src="https://cartodb-libs.global.ssl.fastly.net/carto.js/v4.2.0/carto.min.js"></script>
+
+    <script>
+
+    var corner1 = L.latLng(52.49900, 13.39000),
+    corner2 = L.latLng(52.46000, 13.46300),
+    bounds = L.latLngBounds(corner1, corner2);
+
+    var map = L.map('map',{ center: [52.50000, 13.3800], zoom: 10});
+    // Tile Layer basemap aus mapbox.com hinzufügen
+    L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoibmVzdG9yamVsaXBlIiwiYSI6ImNpb3dsdW4wbTAwN2t3ZGtqMDd2cGtlbjIifQ.v-kTLPHIgkXuobgi8kbZRw', {
+      attribution: 'Autoría: Montes Claros 34 /<a href="https://www.cashmereradio.com/montes-claros-34">Cashmere Radio</a>',
+      minZoom: 10, 
+      maxZoom: 20
+    }).addTo(map);
+    
+    function goToDemo1() {
+      map.flyTo(new L.latLng(52.51622086, 13.47943068),15, {
+        animation: true,
+        duration: 10
+      });
+    }
+
+    function goToDemo2() {
+      map.flyTo(new L.latLng(52.47953931, 13.25852394),15, {
+        animation: true,
+        duration: 10
+      });
+    }
+
+    function goToDemo3() {
+      map.flyTo(new L.latLng(52.48000, 13.4250),15, {
+        animation: true,
+        duration: 10
+      });
+    }
+
+    animationlist = []
+
+    function goTo() {
+      map.flyTo(new L.latLng(0, 0),3, {
+        animation: true,
+        duration: 60,
+        easeLinearity:0.25
+      });
+      setTimeout(function () {
+          map.flyTo(new L.latLng(52.49983682, 13.43708396), 19, {
+        animation: true,
+        duration: 5,
+        easeLinearity:0.25
+      });
+        }, 60000);
+    }
+
+
+    const client = new carto.Client({
+      apiKey: 'default_public',
+      username: 'nestorjelipe'
+    });
+
+    const puntosSource = new carto.source.Dataset('puntos_montesclaros');
+    const puntosStyle = new carto.style.CartoCSS(`
+      #layer {
+        marker-width: 10;
+        marker-fill: #EE4D5A;
+        marker-line-color: #FFFFFF;
+      }
+
+      #layer::labels {
+        text-name: [name];
+        text-face-name: 'DejaVu Sans Book';
+        text-size: 10;
+        text-fill: #FFFFFF;
+        text-label-position-tolerance: 10;
+        text-halo-radius: 1;
+        text-halo-fill: #6F808D;
+        text-dy: -10;
+        text-allow-overlap: false;
+        text-placement: point;
+        text-placement-type: dummy;
+      }
+    `);    
+
+    const puntoslayer = new carto.layer.Layer(puntosSource, puntosStyle, {
+      featureOverColumns: ['name', 'description', 'audio']
+    });
+
+
+    const lineasSource = new carto.source.Dataset('rutas_montesclaros');
+    const lineasStyle = new carto.style.CartoCSS(`
+      
+
+      #layer[gruppe = 'Audioguía'] {
+        line-width: 7;
+        line-color: red;
+        line-opacity: 1;
+      }
+
+      #layer{ 
+        line-width: 5;
+        line-color: #FFF000; 
+        line-opacity: 0.5;
+      }
+
+      #layer[name = 'Manifestacion']{ 
+        line-width: 5;
+        line-color: cyan; 
+        line-opacity: 0.5;
+      }
+    `);
+
+    const lineaslayer = new carto.layer.Layer(lineasSource, lineasStyle, {
+      featureOverColumns: ['name', 'info','gruppe']
+    });
+
+    client.addLayers([puntoslayer, lineaslayer]);
+    client.getLeafletLayer().addTo(map);
+
+    const popup = L.popup({ closeButton: false });
+
+    lineaslayer.on(carto.layer.events.FEATURE_OVER, featureEvent => {
+      popup.setLatLng(featureEvent.latLng);
+      if (!popup.isOpen()) {
+        popup.setContent(featureEvent.data.info);
+        popup.openOn(map);
+      }
+    });
+
+    lineaslayer.on('featureOut', featureEvent => {
+      popup.removeFrom(map);
+    })
+
+    </script>
+  </body>
+</html>
