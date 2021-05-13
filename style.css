@@ -1,0 +1,42 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
+
+html, body {
+  margin: 0px;
+  font-size: 12px;
+  font-family: 'Open Sans', Helvetica, sans-serif;
+}
+
+#map {
+  position: absolute;
+  top: 60px;
+  bottom: 0px;
+  width: 100%;
+}
+
+#controls {
+  width: 100%;
+  margin: auto;
+  float: center;
+}
+
+input[type = "button"] {
+  border: none;
+  border-radius: 5px;
+  color:#FFFAFA;
+  font-weight: bolder;
+  margin-top: 10px;
+  margin-left: 10px; 
+  background-color: #000000;
+  opacity: 0.70;
+  font: 12px "Lucida Grande", Helvetica, Arial, sans-serif;
+  height: 30px;
+}
+
+@keyframes fade {
+  from {opacity: 0.1;}
+}
+
+.blinking{
+  animation: fade 1s infinite alternate;
+}
